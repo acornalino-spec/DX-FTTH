@@ -24,7 +24,7 @@ try:
     # 2. DEFINIR LAS DOS COLUMNAS A FILTRAR
     # Cambiá estos nombres por los encabezados reales de tu Excel
     columna_1 = 'route_criteria_cd'
-    columna_2 = 'sector_operativo'
+    
 
     # Copia inicial de los datos para ir aplicando los filtros en cadena
     df_filtrado = df.copy()
