@@ -36,12 +36,6 @@ try:
         # Filtramos
         df_filtrado = df_filtrado[df_filtrado[columna_1].isin(seleccion_1)]
 
-    # Filtro para la Segunda Columna (si existe en el Excel)
-    if columna_2 in df.columns:
-        opciones_2 = df[columna_2].dropna().unique()
-        seleccion_2 = st.sidebar.multiselect(f"Filtrar por {columna_2}:", opciones_2, default=opciones_2)
-        # Volvemos a filtrar sobre lo que ya estaba filtrado
-        df_filtrado = df_filtrado[df_filtrado[columna_2].isin(seleccion_2)]
 
     # Aplicamos la búsqueda por texto si escribieron algo
     if busqueda:
