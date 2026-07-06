@@ -15,36 +15,45 @@ def cargar_datos():
 
 try:
     df = cargar_datos()
+# --- SECCIÓN DE FILTROS (Barra Lateral) ---
+    st.sidebar.header("Filtros de Búsqueda")
 
-    # --- SECCIÓN DE FILTROS (En la barra lateral) ---
-    st.sidebar.header("Filtros disponibles")
+    # 1. Buscador de texto libre
+    busqueda = st.sidebar.text_input("🔍 Buscar por texto libre:")
 
-    # Filtro 1: Buscador de texto libre (busca en todas las columnas)
-    busqueda = st.sidebar.text_input("🔍 Buscar por texto:")
+    # 2. DEFINIR LAS DOS COLUMNAS A FILTRAR
+    # Cambiá estos nombres por los encabezados reales de tu Excel
+    columna_1 = 'route_criteria_cd'
+    columna_2 = 'sector_operativo'
 
-    # Filtro 2: Desplegable múltiple (asumiendo que tenés una columna llamada 'Categoría')
-    # Cambia 'Categoría' por el nombre real de alguna columna de tu Excel (ej: 'Zona', 'Tipo', 'Estado')
-    columna_filtro = 'Categoría' 
-    
-    if columna_filtro in df.columns:
-        opciones = df[columna_filtro].dropna().unique()
-        seleccion = st.sidebar.multiselect(f"Filtrar por {columna_filtro}:", opciones, default=opciones)
-        # Aplicamos el filtro de categoría
-        df_filtrado = df[df[columna_filtro].isin(seleccion)]
-    else:
-        df_filtrado = df.copy()
+    # Copia inicial de los datos para ir aplicando los filtros en cadena
+    df_filtrado = df.copy()
 
-    # Aplicamos el filtro de búsqueda de texto si el usuario escribió algo
+    # Filtro para la Primera Columna (si existe en el Excel)
+    if columna_1 in df.columns:
+        opciones_1 = df[columna_1].dropna().unique()
+        seleccion_1 = st.sidebar.multiselect(f"Filtrar por {columna_1}:", opciones_1, default=opciones_1)
+        # Filtramos
+        df_filtrado = df_filtrado[df_filtrado[columna_1].isin(seleccion_1)]
+
+    # Filtro para la Segunda Columna (si existe en el Excel)
+    if columna_2 in df.columns:
+        opciones_2 = df[columna_2].dropna().unique()
+        seleccion_2 = st.sidebar.multiselect(f"Filtrar por {columna_2}:", opciones_2, default=opciones_2)
+        # Volvemos a filtrar sobre lo que ya estaba filtrado
+        df_filtrado = df_filtrado[df_filtrado[columna_2].isin(seleccion_2)]
+
+    # Aplicamos la búsqueda por texto si escribieron algo
     if busqueda:
-        # Esto busca el texto en cualquier celda de la fila
         df_filtrado = df_filtrado[df_filtrado.astype(str).apply(lambda x: x.str.contains(busqueda, case=False)).any(axis=1)]
 
-    # --- SECCIÓN DE RESULTADOS ---
-    # Mostramos la cantidad de registros encontrados
-    st.metric(label="Registros encontrados", value=len(df_filtrado))
 
-    # Mostramos la tabla interactiva
+    # --- SECCIÓN DE RESULTADOS ---
+    st.metric(label="Registros encontrados", value=len(df_filtrado))
     st.dataframe(df_filtrado, use_container_width=True)
+    
+
+
 
 except FileNotFoundError:
     st.error("⚠️ No se encontró el archivo 'datos.xlsx'. Asegúrate de subirlo al mismo repositorio de GitHub.")
